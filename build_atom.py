@@ -3,6 +3,7 @@ from ase.visualize import view
 from ase import Atoms
 import numpy as np
 from ase.calculators.lj import LennardJones
+import math
 
 def set_bcc_atoms_in_volume(length, lattice_constant):
 
@@ -14,7 +15,8 @@ def set_bcc_atoms_in_volume(length, lattice_constant):
     for i in range(len(x.flatten())):
         for j in range(len(basic_atom_positions)):
             atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i], z.flatten()[i]]) + np.array(basic_atom_positions[j])))
-    atoms = Atoms(len(atom_pos_in_box) * 'Zr', atom_pos_in_box)
+    cell_parameter = [length, length, length, math.pi / 2, math.pi / 2, math.pi / 2]
+    atoms = Atoms(len(atom_pos_in_box) * 'Zr', atom_pos_in_box, cell = cell_parameter)
     return atoms
 
 def set_hcp_atoms_in_volume(base_length, height_length, _a, _c):
