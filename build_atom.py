@@ -5,11 +5,11 @@ import numpy as np
 from ase.calculators.lj import LennardJones
 import math
 
-def set_bcc_atoms_in_volume(length, lattice_constant):
+def set_bcc_atoms_in_volume(length, cell_number_one_side):
 
-    a1: Atoms = bulk('Zr', 'bcc', a = lattice_constant, cubic=True)
+    a1: Atoms = bulk('Zr', 'bcc', a = length / cell_number_one_side, cubic=True)
     basic_atom_positions = np.array(a1.get_positions())
-    one_side = np.linspace(0, length, int(length / lattice_constant) + 1)
+    one_side = np.linspace(-length/2, length/2, cell_number_one_side + 1)[:-1]
     x, y, z = np.meshgrid(one_side, one_side, one_side)
     atom_pos_in_box = []
     for i in range(len(x.flatten())):
