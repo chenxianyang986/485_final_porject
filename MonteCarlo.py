@@ -73,13 +73,12 @@ def my_mc_sweep(atoms: Atoms, lbox, beta, eta, acc_check, vmax, pressure):
       newpos = deepcopy(oldpos)
       for j in range(ndim):
         newpos[i][j] += eta[i][j]
-      #if check_distance(newpos[i], newpos, i):
       atoms.set_positions(newpos)
       newpotential = atoms.get_potential_energy()
       acc_probability = math.e ** my_loga_symmetric(oldpotential, newpotential, beta)
-      if acc_check[i] <= acc_probability:
+      if acc_check[i] <= acc_probability and newpotential > -2000: #TODO: may change later for this check
         n_move_accept += 1
         oldpos = deepcopy(newpos)
       else:
         atoms.set_positions(oldpos)
-  return n_volume_accept, n_move_accept / natom, atoms.get_potential_energy(), state
+  return n_volume_accept, n_move_accept / natom, atoms.get_potential_energy(), state, atoms.get_positions()
