@@ -60,25 +60,25 @@ def my_mc_sweep(atoms: Atoms, lbox, beta, eta, acc_check, vmax, pressure):
     new_volume = math.e **((np.random.random() - 0.5) * vmax + np.log(volume))
     new_lbox = new_volume ** (1/3)
     new_pos = deepcopy(oldpos) * new_lbox / lbox
-    atoms.set_positions(new_pos)
+    atoms.set_positions(eamc.minimum_image(new_pos, new_lbox))
     newpotential = atoms.get_potential_energy()
     acc_probability = math.e ** volume_change_acceptance_rule(oldpotential, newpotential, volume, new_volume, beta, pressure, natom)
     if np.random.random() < acc_probability:
       n_volume_accept = True
     else:
-      atoms.set_positions(oldpos)
+      atoms.set_positions(eamc.minimum_image(oldpos, lbox))
   else:
     for i in range(natom):
       oldpotential = atoms.get_potential_energy()
       newpos = deepcopy(oldpos)
       for j in range(ndim):
         newpos[i][j] += eta[i][j]
-      atoms.set_positions(newpos)
+      atoms.set_positions(eamc.minimum_image(newpos, lbox))
       newpotential = atoms.get_potential_energy()
       acc_probability = math.e ** my_loga_symmetric(oldpotential, newpotential, beta)
       if acc_check[i] <= acc_probability and newpotential > -2000: #TODO: may change later for this check
         n_move_accept += 1
-        oldpos = deepcopy(newpos)
+        oldpos = deepcopy(eamc.minimum_image(newpos, lbox))
       else:
-        atoms.set_positions(oldpos)
+        atoms.set_positions(eamc.minimum_image(oldpos, lbox))
   return n_volume_accept, n_move_accept / natom, atoms.get_potential_energy(), state, atoms.get_positions()

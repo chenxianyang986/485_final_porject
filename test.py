@@ -61,12 +61,12 @@ def test_monte_carlo():
   total_volume_attempt = 0
   position_acceptance_ratio = []
   for i in range(number_of_sweeps):
-    #print(i)
+    print(i)
     moves = np.random.normal(mu, tau, n_atoms * 3)
     moves = moves.reshape((n_atoms, 3))
     acceptance_check = np.random.uniform(size = n_atoms)
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
-    print(current_potential, state)
+    #print(current_potential, state)
     if state == True:
       total_volume_attempt += 1
       if volume_accept:
@@ -83,6 +83,7 @@ def test_monte_carlo():
   axes[1].plot(potential)
   fig.tight_layout()
   plt.show()
+  view(atoms)
 
 def test_monte_carlo_in_lenard_Jones():
   lengths = 5
@@ -120,6 +121,7 @@ def test_monte_carlo_in_lenard_Jones():
     print("volume update acc is", volume_acceptance_time / total_volume_attempt)
   else:
     print("no volume change occur in this time period")
+  view(atoms)
   fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(5, 3))
   axes[0].plot(position_acceptance_ratio)
   axes[1].plot(potential)
