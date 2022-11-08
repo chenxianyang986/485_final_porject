@@ -8,6 +8,7 @@ import numpy as np
 import MonteCarlo as mc
 import pair_correlation_function as pcf
 from ase import Atoms
+from copy import deepcopy
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -108,16 +109,16 @@ def test_monte_carlo():
   view(atoms)
 
 def test_monte_carlo_in_hcp():
-  lengths = 9.6
+  lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 2000
+  number_of_sweeps = 200
   vmax = 2
-  beta = 0.5
-  pressure = 1
+  beta = 1/(8.617 * 10 ** -5 *1000)
+  pressure = 1 * 10** 5
   mu = 0
-  tau = 1
+  tau = 0.3
   calc = eamc.set_up_eam_calculator()
-  atoms = ba.set_hcp_atoms_in_volume(lengths, lengths * 1.7, int(n_cells ** (1/3)), int(n_cells ** (1/3)))
+  atoms = ba.set_hcp_atoms_in_volume(lengths, lengths, int(n_cells ** (1/3)), int(n_cells ** (1/3)))
   view(atoms)
   n_atoms = len(atoms)
   atoms.calc = calc
@@ -125,6 +126,7 @@ def test_monte_carlo_in_hcp():
   volume_acceptance_time = 0
   total_volume_attempt = 0
   position_acceptance_ratio = []
+  #positions_total = np.array([])
   for i in range(number_of_sweeps):
     print(i)
     moves = np.random.normal(mu, tau, n_atoms * 3)
@@ -132,6 +134,12 @@ def test_monte_carlo_in_hcp():
     acceptance_check = np.random.uniform(size = n_atoms)
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
     #print(current_potential, state)
+    '''
+    if len(positions_total) == 0 and i >= number_of_sweeps - 50:
+      positions_total = deepcopy(positions)
+    elif  i >= number_of_sweeps - 50 and len(positions_total) != 0:
+      positions_total += positions
+    '''
     if state == True:
       total_volume_attempt += 1
       if volume_accept:
@@ -152,6 +160,7 @@ def test_monte_carlo_in_hcp():
   axes[1].set_ylabel("potential")
   fig.tight_layout()
   plt.show()
+  #atoms.set_positions(positions_total / (50))
   view(atoms)
 
 def test_monte_carlo_in_lenard_Jones():
