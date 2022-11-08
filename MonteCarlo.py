@@ -63,7 +63,7 @@ def my_mc_sweep(atoms: Atoms, lbox, beta, eta, acc_check, vmax, pressure):
     atoms.set_positions(eamc.minimum_image(new_pos, new_lbox))
     newpotential = atoms.get_potential_energy()
     acc_probability = math.e ** volume_change_acceptance_rule(oldpotential, newpotential, volume, new_volume, beta, pressure, natom)
-    if np.random.random() < acc_probability:
+    if np.random.random() < acc_probability and newpotential > -2000:
       n_volume_accept = True
     else:
       atoms.set_positions(eamc.minimum_image(oldpos, lbox))

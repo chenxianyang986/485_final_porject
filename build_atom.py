@@ -22,8 +22,8 @@ def set_bcc_atoms_in_volume(length, cell_number_one_side):
 def set_hcp_atoms_in_volume(base_length, height_length, _a, _c):
     a1: Atoms = bulk('Zr', 'hcp', a = _a, c = _c)
     basic_atom_positions = np.array(a1.get_positions())
-    base_side = np.linspace(0, base_length, int(base_length / _a) + 1)
-    height_side = np.linspace(0, height_length, int(height_length / _c) + 1)
+    base_side = np.linspace(-base_length / 2, base_length, int(_a) + 1)[:-1]
+    height_side = np.linspace(-height_length / 2, height_length, int(_c) + 1)[:-1]
     x, y, z = np.meshgrid(base_side, base_side, height_side)
     atom_pos_in_box = []
     for i in range(len(x.flatten())):

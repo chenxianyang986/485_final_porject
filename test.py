@@ -7,6 +7,7 @@ import sys
 import numpy as np
 import MonteCarlo as mc
 import pair_correlation_function as pcf
+from ase import Atoms
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -23,6 +24,23 @@ def test_atom_set_up():
       atomic_volumes.append(atoms.get_volume() / atoms.get_global_number_of_atoms())
       #view(atoms)
   plt.plot(atomic_volumes, potentials, color='green', marker='o', linestyle='dashed')
+  plt.show()
+
+def test_atom_set_up_2():
+  calc = eamc.set_up_eam_calculator()
+  lengths = np.linspace(1.8, 5, 301)
+  potentials = []
+  atomic_distances = []
+  for i in range(len(lengths)):
+      atoms = Atoms(2 * "Zr", positions=[[0, 0, 0], [0, 0, lengths[i]]])
+      atoms.calc = calc
+      potentials.append(atoms.get_potential_energy())
+      atomic_distances.append(lengths[i])
+      print(lengths[i], potentials[i])
+      #view(atoms)
+  plt.plot(atomic_distances, potentials, color='green', linestyle='dashed')
+  plt.xlabel("r Angstrom")
+  plt.ylabel("Energy ev")
   plt.show()
 
 def test_intial_set_up():
@@ -46,7 +64,7 @@ def test_intial_set_up():
 def test_monte_carlo():
   lengths = 20
   n_cells = 27
-  number_of_sweeps = 1000
+  number_of_sweeps = 500
   vmax = 2
   beta = 1
   pressure = 1
@@ -80,7 +98,58 @@ def test_monte_carlo():
     print("no volume change occur in this time period")
   fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(5, 3))
   axes[0].plot(position_acceptance_ratio)
+  axes[0].set_xlabel("number of sweeps")
+  axes[0].set_ylabel("acceptance ratio")
   axes[1].plot(potential)
+  axes[1].set_xlabel("number of sweeps")
+  axes[1].set_ylabel("potential")
+  fig.tight_layout()
+  plt.show()
+  view(atoms)
+
+def test_monte_carlo_in_hcp():
+  lengths = 9.6
+  n_cells = 27
+  number_of_sweeps = 2000
+  vmax = 2
+  beta = 0.5
+  pressure = 1
+  mu = 0
+  tau = 1
+  calc = eamc.set_up_eam_calculator()
+  atoms = ba.set_hcp_atoms_in_volume(lengths, lengths * 1.7, int(n_cells ** (1/3)), int(n_cells ** (1/3)))
+  view(atoms)
+  n_atoms = len(atoms)
+  atoms.calc = calc
+  potential = []
+  volume_acceptance_time = 0
+  total_volume_attempt = 0
+  position_acceptance_ratio = []
+  for i in range(number_of_sweeps):
+    print(i)
+    moves = np.random.normal(mu, tau, n_atoms * 3)
+    moves = moves.reshape((n_atoms, 3))
+    acceptance_check = np.random.uniform(size = n_atoms)
+    volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
+    #print(current_potential, state)
+    if state == True:
+      total_volume_attempt += 1
+      if volume_accept:
+        volume_acceptance_time += 1
+    else:
+      position_acceptance_ratio.append(move_accept)
+    potential.append(current_potential)
+  if total_volume_attempt != 0:
+    print("volume update acc is", volume_acceptance_time / total_volume_attempt)
+  else:
+    print("no volume change occur in this time period")
+  fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(5, 3))
+  axes[0].plot(position_acceptance_ratio)
+  axes[0].set_xlabel("number of sweeps")
+  axes[0].set_ylabel("acceptance ratio")
+  axes[1].plot(potential)
+  axes[1].set_xlabel("number of sweeps")
+  axes[1].set_ylabel("potential")
   fig.tight_layout()
   plt.show()
   view(atoms)
@@ -88,7 +157,7 @@ def test_monte_carlo():
 def test_monte_carlo_in_lenard_Jones():
   lengths = 5
   n_cells = 27
-  number_of_sweeps = 300
+  number_of_sweeps = 100
   vmax = 2
   beta = 2
   pressure = 1
@@ -177,10 +246,14 @@ def gr_simulation_helper_function(b):
 def main(argv):
   if argv[0] == "--setup":
     test_atom_set_up()
+  elif argv[0] == "--setup2":
+    test_atom_set_up_2()
   elif argv[0] == "--pbc":
     test_intial_set_up()
   elif argv[0] == "--mc":
     test_monte_carlo()
+  elif argv[0] == "--mchcp":
+    test_monte_carlo_in_hcp()
   elif argv[0] == "--lj":
     test_monte_carlo_in_lenard_Jones()
   if argv[0]== "--plotgr":
