@@ -118,7 +118,7 @@ def test_monte_carlo():
 def test_monte_carlo_in_hcp():
   lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 150
+  number_of_sweeps = 1000
   vmax = 2
   beta = 1/(8.617 * 10 ** -5 *1000)
   pressure = 1 * 10** 5
@@ -126,14 +126,18 @@ def test_monte_carlo_in_hcp():
   tau = 0.3
   calc = eamc.set_up_eam_calculator()
   atoms = ba.set_hcp_atoms_in_volume(lengths, lengths, int(n_cells ** (1/3)), int(n_cells ** (1/3)))
-  
+  view(atoms)
   n_atoms = len(atoms)
   '''
   gr = pcf.get_pair_correlation(1/beta, [atoms.get_positions()], n_atoms, lengths)
   plt.plot(gr)
   plt.show()
   '''
-  plot_sk(10, lengths, atoms.get_positions())
+  reduced_sk, sk_list = plot_sk(4, lengths, atoms.get_positions())
+  plt.plot(reduced_sk[1:], sk_list[1:])
+  plt.xlabel("kvecs")
+  plt.ylabel("sk")
+  plt.show()
   atoms.calc = calc
   potential = []
   volume_acceptance_time = 0
@@ -151,7 +155,6 @@ def test_monte_carlo_in_hcp():
     
     if i >= 50:
       positions_total.append(np.array(positions))
-    
     if state == True:
       total_volume_attempt += 1
       if volume_accept:
@@ -179,16 +182,24 @@ def test_monte_carlo_in_hcp():
   plt.plot(gr_simulation)
   plt.show()
   '''
-  print(np.sum(positions_total, axis=0) / len(positions_total))
-  plot_sk(4, lengths, np.sum(positions_total, axis=0) / len(positions_total))
-  
+  total_sk = np.array([])
+  reduced_kvecs = np.array([])
+  for i in positions_total:
+    reduced_kvecs, reduced_sk = plot_sk(4, lengths, i)
+    if len(total_sk) == 0:
+      total_sk = reduced_sk
+    else:
+      total_sk += reduced_sk
+  plt.plot(reduced_kvecs[1:], (total_sk / len(positions_total))[1:])
+  plt.xlabel("kvecs")
+  plt.ylabel("sk")
+  plt.show()
 
 def plot_sk(maxn, box_length, avg_pos):
   kvecs = sf.my_legal_kvecs(maxn, box_length)
   sk = sf.my_calc_sk(kvecs, avg_pos)
   reduced_kvecs, reduced_sk = sf.structure_factor_plot_helper(kvecs, sk)
-  plt.plot(reduced_kvecs[1:], reduced_sk[1:])
-  plt.show()
+  return reduced_kvecs, reduced_sk
 
 def test_monte_carlo_in_lenard_Jones():
   lengths = 5
