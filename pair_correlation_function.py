@@ -58,8 +58,7 @@ def get_pair_correlation(T, position_arr, N, L):
     gr_total = np.array([])
     bin_centers = np.array([])
     count = 0
-    for i in position_arr[50:]:
-        print(count)
+    for i in position_arr:
         count+=1
         dis_table = get_distance_table(i, N, L)
         pair_distance = exclude_replicated_pair(dis_table)
@@ -69,6 +68,6 @@ def get_pair_correlation(T, position_arr, N, L):
         else:
             gr_total += gr.copy()
     
-    gr_avg = gr_total / len(position_arr[50:])
+    gr_avg = gr_total / len(position_arr)
 
     return gr_avg

@@ -9,6 +9,7 @@ import MonteCarlo as mc
 import pair_correlation_function as pcf
 from ase import Atoms
 from copy import deepcopy
+import structure_factor as sf
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -63,22 +64,25 @@ def test_intial_set_up():
   print(atoms.get_potential_energy())
 
 def test_monte_carlo():
-  lengths = 20
+  lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 500
+  number_of_sweeps = 150
   vmax = 2
-  beta = 1
-  pressure = 1
+  beta = 1 / (8.617 * 10 ** -5 * 1000)
+  pressure = 1 * 10 ** 5
   mu = 0
   tau = 1
   calc = eamc.set_up_eam_calculator()
   atoms = ba.set_bcc_atoms_in_volume(lengths, int(n_cells ** (1/3)))
+  view(atoms)
   n_atoms = len(atoms)
   atoms.calc = calc
   potential = []
   volume_acceptance_time = 0
   total_volume_attempt = 0
   position_acceptance_ratio = []
+  plot_sk(4, lengths, atoms.get_positions())
+  positions_total = []
   for i in range(number_of_sweeps):
     print(i)
     moves = np.random.normal(mu, tau, n_atoms * 3)
@@ -86,6 +90,8 @@ def test_monte_carlo():
     acceptance_check = np.random.uniform(size = n_atoms)
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
     #print(current_potential, state)
+    if i > 50:
+      positions_total.append(positions)
     if state == True:
       total_volume_attempt += 1
       if volume_accept:
@@ -107,11 +113,12 @@ def test_monte_carlo():
   fig.tight_layout()
   plt.show()
   view(atoms)
+  plot_sk(4, lengths, np.sum(positions_total, axis=0) / len(positions_total))
 
 def test_monte_carlo_in_hcp():
   lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 200
+  number_of_sweeps = 150
   vmax = 2
   beta = 1/(8.617 * 10 ** -5 *1000)
   pressure = 1 * 10** 5
@@ -119,14 +126,21 @@ def test_monte_carlo_in_hcp():
   tau = 0.3
   calc = eamc.set_up_eam_calculator()
   atoms = ba.set_hcp_atoms_in_volume(lengths, lengths, int(n_cells ** (1/3)), int(n_cells ** (1/3)))
-  view(atoms)
+  
   n_atoms = len(atoms)
+  '''
+  gr = pcf.get_pair_correlation(1/beta, [atoms.get_positions()], n_atoms, lengths)
+  plt.plot(gr)
+  plt.show()
+  '''
+  plot_sk(10, lengths, atoms.get_positions())
   atoms.calc = calc
   potential = []
   volume_acceptance_time = 0
   total_volume_attempt = 0
   position_acceptance_ratio = []
-  #positions_total = np.array([])
+  positions_total = []
+
   for i in range(number_of_sweeps):
     print(i)
     moves = np.random.normal(mu, tau, n_atoms * 3)
@@ -134,12 +148,10 @@ def test_monte_carlo_in_hcp():
     acceptance_check = np.random.uniform(size = n_atoms)
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
     #print(current_potential, state)
-    '''
-    if len(positions_total) == 0 and i >= number_of_sweeps - 50:
-      positions_total = deepcopy(positions)
-    elif  i >= number_of_sweeps - 50 and len(positions_total) != 0:
-      positions_total += positions
-    '''
+    
+    if i >= 50:
+      positions_total.append(np.array(positions))
+    
     if state == True:
       total_volume_attempt += 1
       if volume_accept:
@@ -162,6 +174,21 @@ def test_monte_carlo_in_hcp():
   plt.show()
   #atoms.set_positions(positions_total / (50))
   view(atoms)
+  '''
+  gr_simulation = pcf.get_pair_correlation(1/beta, positions_total, n_atoms, lengths)
+  plt.plot(gr_simulation)
+  plt.show()
+  '''
+  print(np.sum(positions_total, axis=0) / len(positions_total))
+  plot_sk(4, lengths, np.sum(positions_total, axis=0) / len(positions_total))
+  
+
+def plot_sk(maxn, box_length, avg_pos):
+  kvecs = sf.my_legal_kvecs(maxn, box_length)
+  sk = sf.my_calc_sk(kvecs, avg_pos)
+  reduced_kvecs, reduced_sk = sf.structure_factor_plot_helper(kvecs, sk)
+  plt.plot(reduced_kvecs[1:], reduced_sk[1:])
+  plt.show()
 
 def test_monte_carlo_in_lenard_Jones():
   lengths = 5

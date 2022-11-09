@@ -34,5 +34,4 @@ def set_hcp_atoms_in_volume(base_length, height_length, _a, _c):
             for k in range(len(basic_atom_positions)):
                 atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i], z.flatten()[i]]) + np.array(basic_atom_positions[k])))
     atoms = Atoms('Zr' * len(atom_pos_in_box), positions=atom_pos_in_box)
-    print(x.flatten(), y.flatten(), z.flatten())
     return atoms

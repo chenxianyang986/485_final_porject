@@ -79,6 +79,7 @@ def my_mc_sweep(atoms: Atoms, lbox, beta, eta, acc_check, vmax, pressure):
       if acc_check[i] <= acc_probability and newpotential > -2000: #TODO: may change later for this check
         n_move_accept += 1
         oldpos = deepcopy(eamc.minimum_image(newpos, lbox))
+        atoms.set_positions(eamc.minimum_image(newpos, lbox))
       else:
         atoms.set_positions(eamc.minimum_image(oldpos, lbox))
   return n_volume_accept, n_move_accept / natom, atoms.get_potential_energy(), state, atoms.get_positions()
