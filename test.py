@@ -66,12 +66,12 @@ def test_intial_set_up():
 def test_monte_carlo():
   lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 150
-  vmax = 2
+  number_of_sweeps = 1500
+  vmax = 1
   beta = 1 / (8.617 * 10 ** -5 * 1000)
-  pressure = 1 * 10 ** 5
+  pressure = 0.01
   mu = 0
-  tau = 1
+  tau = 0.5
   calc = eamc.set_up_eam_calculator()
   atoms = ba.set_bcc_atoms_in_volume(lengths, int(n_cells ** (1/3)))
   view(atoms)
@@ -81,7 +81,9 @@ def test_monte_carlo():
   volume_acceptance_time = 0
   total_volume_attempt = 0
   position_acceptance_ratio = []
-  plot_sk(4, lengths, atoms.get_positions())
+  reduced_kvecs, sk_list = plot_sk(4, lengths, atoms.get_positions())
+  plt.plot(reduced_kvecs[1:], sk_list[1:])
+  plt.show()
   positions_total = []
   for i in range(number_of_sweeps):
     print(i)
@@ -90,8 +92,8 @@ def test_monte_carlo():
     acceptance_check = np.random.uniform(size = n_atoms)
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
     #print(current_potential, state)
-    if i > 50:
-      positions_total.append(positions)
+    if i >= 50:
+      positions_total.append(np.array(positions))
     if state == True:
       total_volume_attempt += 1
       if volume_accept:
@@ -113,19 +115,30 @@ def test_monte_carlo():
   fig.tight_layout()
   plt.show()
   view(atoms)
-  plot_sk(4, lengths, np.sum(positions_total, axis=0) / len(positions_total))
+  total_sk = np.array([])
+  reduced_kvecs = np.array([])
+  for i in positions_total:
+    reduced_kvecs, reduced_sk = plot_sk(4, lengths, i)
+    if len(total_sk) == 0:
+      total_sk = reduced_sk
+    else:
+      total_sk += reduced_sk
+  plt.plot(reduced_kvecs[1:], (total_sk / len(positions_total))[1:])
+  plt.xlabel("kvecs")
+  plt.ylabel("sk")
+  plt.show()
 
 def test_monte_carlo_in_hcp():
   lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 1000
-  vmax = 2
-  beta = 1/(8.617 * 10 ** -5 *1000)
-  pressure = 1 * 10** 5
+  number_of_sweeps = 1500
+  vmax = 0.5
+  beta = 1/(8.617 * 10 ** -5 * 1000)
+  pressure = 0.01
   mu = 0
   tau = 0.3
   calc = eamc.set_up_eam_calculator()
-  atoms = ba.set_hcp_atoms_in_volume(lengths, lengths, int(n_cells ** (1/3)), int(n_cells ** (1/3)))
+  atoms = ba.set_hcp_atoms_in_volume(lengths, lengths, np.round(n_cells ** (1/3)), np.round(n_cells ** (1/3)))
   view(atoms)
   n_atoms = len(atoms)
   '''
@@ -247,7 +260,9 @@ def test_monte_carlo_in_lenard_Jones():
 def test_at_different_temperatures(betas):
   for beta in betas:
     gr_simulation = gr_simulation_helper_function(float(beta))
-    plt.plot(gr_simulation, label="beta = {}".format(beta))
+    plt.plot(gr_simulation, label= f"1/kT is {beta}")
+    plt.xlabel("r*")
+    plt.ylabel("gr")
   plt.show()
   pass
 
