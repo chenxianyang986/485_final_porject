@@ -1,0 +1,6 @@
+LAMMPS (3 Nov 2022)
+  using 16 OpenMP thread(s) per MPI task
+Open of file C:\Users\xianyang chen\AppData\Local\LAMMPS USER-VCSGC Plugin 23Jun2022-MPI\vcsgcplugin.so failed: 
+Loaded 0 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS USER-VCSGC Plugin 23Jun2022-MPI
+Loaded 1 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS 64-bit 3Nov2022\plugins
+Total wall time: 0:02:44
