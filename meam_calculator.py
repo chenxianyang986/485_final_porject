@@ -2,7 +2,6 @@ from ase.calculators.lammpsrun import LAMMPS
 import os
 from ase.calculators.lammpslib import LAMMPSlib
 
-import lammps
 def setup_meam_calculator() -> LAMMPSlib:
   '''
   parameters = {'pair_style': 'meam', 'pair_coeff': ['* * library.meam.fs Zr']}
