@@ -38,7 +38,7 @@ def gibbs(atoms,calc,N,P,V,T,kvecs = (10, 10, 10)):
 
     return(Helm/(N**3) + P*V + atoms.get_potential_energy())
 
-def toy_gibbs(atoms,calc,N,P,V,T,kvecs = (10, 10, 10)):
+def toy_gibbs(atoms,calc,N,P,V,T,kvecs = (6, 6, 6)):
 
     ph = Phonons(atoms, calc, supercell=(N, N, N), delta=0.05)
     ph.run()
@@ -87,35 +87,26 @@ def toy_Helmholtz(atoms,calc,N,T,kvecs = (10, 10, 10)):
 
 
 def main():
-    a1: Atoms = bulk('Zr', 'hcp')
+    a1: Atoms = bulk('Zr', 'hcp', a=3.24, c=5.18)
     a2: Atoms = bulk('Zr', 'bcc', a=3.24, cubic=True)
-    print(a1.get_volume(), a2.get_volume())
     calc = eamc.set_up_eam_calculator()
     a1.calc = calc
     a2.calc = calc
-    '''
-    basic_atom_positions = np.array(a1.get_positions())
-    one_side = np.linspace(0, 4.05 * 4, 4 + 1)[:-1]
-    x, y, z = np.meshgrid(one_side, one_side, one_side)
-    atom_pos_in_box = []
-    for i in range(len(x.flatten())):
-        for j in range(len(basic_atom_positions)):
-            atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i], z.flatten()[i]]) + np.array(basic_atom_positions[j])))
-    #cell_parameter = [length, length, length, math.pi / 2, math.pi / 2, math.pi / 2]
-    atoms = Atoms(len(atom_pos_in_box) * 'Al', atom_pos_in_box, cell = [4.05 * 4, 4.05*4, 4.05*4])
-    
-    view(atoms)
-    atoms.calc = EMT()
-    '''
     free_energy_hcp = []
     free_energy_bcc = []
-    for T in [200, 400, 600, 800, 1000, 1200]:
-        #free_energy_hcp.append(toy_gibbs(a1, calc, 5, 0.01, a1.get_volume(), T))
-        #free_energy_bcc.append(toy_gibbs(a2, calc, 5, 0.01, a2.get_volume(), T))
-        free_energy_hcp.append(toy_Helmholtz(a1, calc, 3, T))
-        free_energy_bcc.append(toy_Helmholtz(a2, calc, 3, T))
-    plt.plot([200, 400, 600, 800, 1000, 1200], free_energy_bcc, label="bcc")
-    plt.plot([200, 400, 600, 800, 1000, 1200], free_energy_hcp, label="hcp")
+    lattice_constant_a = np.linspace(3.22, 3.26, 8)
+    lattice_constant_c = np.linspace(5.175, 5.21, 8)
+    count = 0
+    for T in [50, 100, 200, 400, 600, 800, 1000, 1200]:
+        a1.set_cell([lattice_constant_a[count], lattice_constant_a[count], lattice_constant_c[count], 90, 90, 120])
+        a2.set_cell([lattice_constant_a[count], lattice_constant_a[count], lattice_constant_a[count]])
+        free_energy_hcp.append(toy_gibbs(a1, calc, 6, 0.01, a1.get_volume(), T, kvecs=(12, 12, 8)))
+        free_energy_bcc.append(toy_gibbs(a2, calc, 6, 0.01, a2.get_volume(), T, kvecs=(12, 12, 12)))
+        #free_energy_hcp.append(toy_Helmholtz(a1, calc, 3, T))
+        #free_energy_bcc.append(toy_Helmholtz(a2, calc, 3, T))
+        count+=1
+    plt.plot([50, 100, 200, 400, 600, 800, 1000, 1200], free_energy_bcc, label="bcc")
+    plt.plot([50, 100, 200, 400, 600, 800, 1000, 1200], free_energy_hcp, label="hcp")
     plt.legend()
     plt.show()
     
