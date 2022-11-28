@@ -7,9 +7,17 @@ from copy import deepcopy
 
 def check_distance(cur_pos, all_pos, index):
   for i in range(len(all_pos)):
-    distance = np.sum((cur_pos - all_pos[i]) ** 2)
-    if distance < 0.01 and index != i:
+    distance = np.sum((cur_pos - all_pos[i]) ** 2) ** 0.5
+    if distance < 1 and index != i:
       return False
+  return True
+
+def check_volume_move_distance(all_pos):
+  for i in range(len(all_pos)):
+    for j in range(i, len(all_pos)):
+      distance = np.sum((all_pos[i] - all_pos[j]) ** 2) ** 0.5
+      if distance < 1:
+        return False
   return True
 
 def my_loga_symmetric(vold, vnew, beta):
@@ -63,7 +71,7 @@ def my_mc_sweep(atoms: Atoms, lbox, beta, eta, acc_check, vmax, pressure):
     atoms.set_positions(eamc.minimum_image(new_pos, new_lbox))
     newpotential = atoms.get_potential_energy()
     acc_probability = math.e ** volume_change_acceptance_rule(oldpotential, newpotential, volume, new_volume, beta, pressure, natom)
-    if np.random.random() < acc_probability and newpotential > -2000:
+    if np.random.random() < acc_probability and newpotential - oldpotential >-6.5*len(atoms):
       n_volume_accept = True
     else:
       atoms.set_positions(eamc.minimum_image(oldpos, lbox))
@@ -76,7 +84,7 @@ def my_mc_sweep(atoms: Atoms, lbox, beta, eta, acc_check, vmax, pressure):
       atoms.set_positions(eamc.minimum_image(newpos, lbox))
       newpotential = atoms.get_potential_energy()
       acc_probability = math.e ** my_loga_symmetric(oldpotential, newpotential, beta)
-      if acc_check[i] <= acc_probability and newpotential > -2000: #TODO: may change later for this check
+      if acc_check[i] <= acc_probability and newpotential -oldpotential>-6.5*len(atoms):
         n_move_accept += 1
         oldpos = deepcopy(eamc.minimum_image(newpos, lbox))
         atoms.set_positions(eamc.minimum_image(newpos, lbox))

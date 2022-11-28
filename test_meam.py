@@ -8,15 +8,17 @@ from ase.visualize import view
 
 def test_meam_potential():
   calc = meamc.setup_meam_calculator()
-  lengths = np.linspace(1, 5, 301)
+  #lengths = np.linspace(1, 5, 301)
+  lengths = [5]
   potentials = []
   atomic_distances = []
 
   
   for i in range(len(lengths)):
-    atoms: Atoms = bulk('Zr', crystalstructure='hcp')
-    atoms.set_cell((atoms.get_cell().lengths() * i).tolist() + atoms.get_cell().angles().tolist(), scale_atoms=True)
-    print(atoms.get_cell())
+    #atoms: Atoms = bulk('Zr', crystalstructure='hcp')
+    #atoms.set_cell((atoms.get_cell().lengths() * i).tolist() + atoms.get_cell().angles().tolist(), scale_atoms=True)
+    #print(atoms.get_cell())
+    atoms = Atoms(2*'Zr', positions=[(0,0,0), (0, 0, lengths[i])])
     atoms.calc = calc
     potentials.append(atoms.get_potential_energy())
     atomic_distances.append(lengths[i])
