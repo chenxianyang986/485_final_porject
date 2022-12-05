@@ -56,14 +56,16 @@ def toy_gibbs(atoms,calc,N,P,V,T,kvecs = (6, 6, 6)):
     bs = ph.band_structure(k)
 
     #print(bs)
-    count = 0
+    
     for i in range(len(bs)):
-        for j in range(len(bs[i])):
+        #for j in range(len(bs[i])):
             #if(bs[i][j] > 0):
-            count+=1
-            Helm+= k_boltz*T*np.log(2*np.sinh(bs[i][j]/(2*k_boltz*T)))
-            entropy += -k_boltz*np.log(1-np.exp(-bs[i][j]/(k_boltz * T))) + bs[i][j]/((np.exp(-bs[i][j]/(k_boltz*T)-1)*T))
-    return Helm/(N**3) + P*V + atoms.get_potential_energy()/N**3 - entropy * T / (count * N**3)
+            Helm+= k_boltz*T*np.log(2*np.sinh(np.linalg.norm(bs[i])/(2*k_boltz*T)))
+            #entropy += -k_boltz*np.log(1-np.exp(-bs[i][j]/(k_boltz * T))) + bs[i][j]/((np.exp(-bs[i][j]/(k_boltz*T)-1)*T))
+    
+    #Helm = k_boltz*T*np.log(2*np.sinh(np.linalg.norm(bs)/(2*k_boltz*T)))
+    return Helm/(N**3) + P*V + atoms.get_potential_energy()/N**3
+
 
 def toy_Helmholtz(atoms,calc,N,T,kvecs = (10, 10, 10)):
 
