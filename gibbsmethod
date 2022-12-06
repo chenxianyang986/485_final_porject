@@ -1,0 +1,64 @@
+def Gibbs_bcc(T):
+    k = 8.617333262e-5
+    
+    temp = str(T)
+    tempname = (temp + "_phonon" +  "_bcc")
+    
+    atoms = bulk('Zr', 'bcc',  a=3.6)
+    atoms.calc = zr2
+    N = 7
+    ph = Phonons(atoms, zr2, supercell=(N, N, N), delta=0.05,name = tempname)
+    ph.run()
+    ph.read(acoustic=True)
+    ph.clean()
+
+    #Trial1:
+    kv=(7, 7, 7)
+    kvc = monkhorst_pack(kv)
+    omega_kl = ph.band_structure(kvc,verbose = False)
+    omega = np.abs(omega_kl)
+
+    Farray = k*T*np.log(2*np.sinh(np.array(omega)/(2*k*T)))
+    F1 = sum(map(sum, Farray))
+
+    V = atoms.get_volume()
+    #P = 0.01623405461
+    P = 1/1581225.38445596
+    U = atoms.get_potential_energy()/N**3
+
+
+    return(F1/N**3 + P*V + U),atoms.get_volume()
+
+def Gibbs_hcp(T):
+    k = 8.617333262e-5
+    
+    temp = str(T)
+    tempname = (temp + "_phonon" +  "_hcp")
+    
+    atoms = bulk('Zr', 'hcp',  a=3.23, b = 5.18)
+    atoms.calc = zr2
+    N = 7
+    ph = Phonons(atoms, zr2, supercell=(N, N, N), delta=0.05,name = tempname)
+    ph.run()
+    ph.read(acoustic=True)
+    ph.clean()
+
+    #Trial1:
+    kv=(7, 7, 7)
+    kvc = monkhorst_pack(kv)
+    omega_kl = ph.band_structure(kvc,verbose = False)
+    omega = np.abs(omega_kl)
+
+    Farray = k*T*np.log(2*np.sinh(np.array(omega)/(2*k*T)))
+    F1 = sum(map(sum, Farray))
+
+    V = atoms.get_volume()
+    #P = 0.01623405461
+    P = 6.25e-3
+    U = atoms.get_potential_energy()/N**3
+
+
+    return(F1/N**3 + P*V + U),atoms.get_volume()
+    
+
+    
