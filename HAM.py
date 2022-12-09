@@ -154,20 +154,22 @@ def main(argv):
     forces4,f4,dft4,ndft4,Ham4 = HAM_check_multi_hcp(displacement=1,mode=[1,1,0],atom=14,steps=600,calc=meamc.setup_meam_calculator(None))
     print(Ham1, Ham2, Ham4)
     '''
-    plt.plot(forces1, label="LJ")
-    plt.plot(forces2, label="EAM")
-    plt.plot(forces4, label="MEAM")
+    plt.plot(forces1[:500], label="LJ")
+    plt.plot(forces2[:110], label="EAM")
+    plt.plot(forces4[:150], label="MEAM")
     plt.legend()
     plt.xlabel("steps")
     plt.ylabel("Force")
     plt.show()
     '''
-    plt.plot(ndft1, label="LJ")
-    plt.plot(ndft2, label="EAM")
-    plt.plot(ndft4, label="MEAM")
+    
+    plt.plot(np.log(ndft1[:500]), label="LJ")
+    plt.plot(np.log(ndft2[:110]), label="EAM")
+    plt.plot(np.log(ndft4[:150]), label="MEAM")
     plt.legend()
     plt.xlabel("steps")
     plt.ylabel("normalized_Fourier_transformed_force")
     plt.show()
+    
 if __name__ == "__main__":
   main(sys.argv[1:])
