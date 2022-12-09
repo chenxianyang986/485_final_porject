@@ -1,6 +1,11 @@
 LAMMPS (3 Nov 2022)
   using 16 OpenMP thread(s) per MPI task
-Open of file C:\Users\xianyang chen\AppData\Local\LAMMPS USER-VCSGC Plugin 23Jun2022-MPI\vcsgcplugin.so failed: 
-Loaded 0 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS USER-VCSGC Plugin 23Jun2022-MPI
 Loaded 1 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS 64-bit 3Nov2022\plugins
+Open of file C:\Users\xianyang chen\AppData\Local\LAMMPS USER-REBOMOS Plugin 23Jun2022-MPI\rebomosplugin.so failed: 
+Loaded 0 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS USER-REBOMOS Plugin 23Jun2022-MPI
+Open of file C:\Users\xianyang chen\AppData\Local\LAMMPS USER-AEAM Plugin 23Jun2022-MPI\aeamplugin.so failed: 
+Loaded 0 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS USER-AEAM Plugin 23Jun2022-MPI
+Open of file C:\Users\xianyang chen\AppData\Local\LAMMPS ML-PACE Plugin 23Jun2022-MPI\paceplugin.so failed: 
+Loaded 0 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS ML-PACE Plugin 23Jun2022-MPI
+Loaded 1 plugins from C:\Users\xianyang chen\AppData\Local\LAMMPS USER-VCSGC Plugin 3Nov2022
 Total wall time: 0:02:44
