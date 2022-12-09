@@ -15,7 +15,7 @@ def set_bcc_atoms_in_volume(length, cell_number_one_side):
     for i in range(len(x.flatten())):
         for j in range(len(basic_atom_positions)):
             atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i], z.flatten()[i]]) + np.array(basic_atom_positions[j])))
-    cell_parameter = [length, length, length]
+    #cell_parameter = [length, length, length]
     atoms = Atoms(len(atom_pos_in_box) * 'Zr', atom_pos_in_box)
     return atoms
 
@@ -29,7 +29,7 @@ def set_hcp_atoms_in_volume(base_length, height_length, _a, _c):
     for i in range(len(x.flatten())):
         if ((i // int(_a)) % int(_a)) % 2 == 1:
             for k in range(len(basic_atom_positions)):
-                atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i] + height_length / int(_c) / 2, z.flatten()[i] + height_length / int(_c) / 2]) + np.array(basic_atom_positions[k])))
+                atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i] + height_length / int(_c) / (2**np.sqrt(3)), z.flatten()[i] + height_length / int( _c) / 2]) + np.array(basic_atom_positions[k])))
         else:
             for k in range(len(basic_atom_positions)):
                 atom_pos_in_box.append((np.array([x.flatten()[i], y.flatten()[i], z.flatten()[i]]) + np.array(basic_atom_positions[k])))

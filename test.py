@@ -30,7 +30,7 @@ def test_atom_set_up():
 
 def test_atom_set_up_2():
   calc = eamc.set_up_eam_calculator()
-  lengths = np.linspace(1.8, 5, 301)
+  lengths = np.linspace(2, 8, 501)
   potentials = []
   atomic_distances = []
   for i in range(len(lengths)):
@@ -66,12 +66,12 @@ def test_intial_set_up():
 def test_monte_carlo():
   lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 1500
-  vmax = 1
-  beta = 1 / (8.617 * 10 ** -5 * 1000)
+  number_of_sweeps = 2500
+  vmax = 1.8
+  beta = 1 / (8.617 * 10 ** -5 * 750)
   pressure = 0.01
   mu = 0
-  tau = 0.5
+  tau = 0.65
   calc = eamc.set_up_eam_calculator()
   atoms = ba.set_bcc_atoms_in_volume(lengths, int(n_cells ** (1/3)))
   view(atoms)
@@ -92,7 +92,7 @@ def test_monte_carlo():
     acceptance_check = np.random.uniform(size = n_atoms)
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
     #print(current_potential, state)
-    if i >= 50:
+    if i >= number_of_sweeps * 2/3:
       positions_total.append(np.array(positions))
     if state == True:
       total_volume_attempt += 1
@@ -131,12 +131,12 @@ def test_monte_carlo():
 def test_monte_carlo_in_hcp():
   lengths = 3.24 * 3
   n_cells = 27
-  number_of_sweeps = 1500
+  number_of_sweeps = 30000 #must be larger than 500
   vmax = 0.5
-  beta = 1/(8.617 * 10 ** -5 * 1000)
+  beta = 1/(8.617 * 10 ** -5 * 1100)
   pressure = 0.01
   mu = 0
-  tau = 0.3
+  tau = 0.55
   calc = eamc.set_up_eam_calculator()
   atoms = ba.set_hcp_atoms_in_volume(lengths, lengths, np.round(n_cells ** (1/3)), np.round(n_cells ** (1/3)))
   view(atoms)
@@ -166,7 +166,7 @@ def test_monte_carlo_in_hcp():
     volume_accept, move_accept, current_potential, state, positions = mc.my_mc_sweep(atoms, lengths, beta, moves, acceptance_check, vmax, pressure)
     #print(current_potential, state)
     
-    if i >= 50:
+    if i >= 200:
       positions_total.append(np.array(positions))
     if state == True:
       total_volume_attempt += 1
